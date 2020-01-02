@@ -12,6 +12,7 @@
 #include <QSortFilterProxyModel>
 #include <QLineEdit>
 #include <QAction>
+#include <QLabel>
 
 #include <QVBoxLayout>
 
@@ -47,7 +48,7 @@ Window::Window()
 
     // Add new item edit
     m_addEdit = new QLineEdit(this);
-    m_addEdit->setPlaceholderText("Enter todo item...");
+    m_addEdit->setPlaceholderText("Enter toldyouso item...");
     m_addEdit->setClearButtonEnabled(true);
     connect(m_addEdit, &QLineEdit::returnPressed, this, &Window::onAddAccepted);
 
@@ -58,7 +59,10 @@ Window::Window()
     connect(filterEdit, &QLineEdit::textChanged, m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
     connect(filterEdit, SIGNAL(returnPressed()), m_listView, SLOT(setFocus())); // the qOverride crap is so fucking ugly
 
+    m_score = new QLabel("0");
+
     // Filter/search on top, the list in the middle, entering new item at the bottom
+    layout()->addWidget(m_score);
     layout()->addWidget(filterEdit);
     layout()->addWidget(m_listView);
     layout()->addWidget(m_addEdit);
@@ -81,12 +85,15 @@ void Window::onAddAccepted()
 
     addItem(m_addEdit->text(), false);
     m_addEdit->clear();
+
+    updateScore();
+
     save();
 }
 
 void Window::load()
 {
-    QFile inputFile(QDir::home().filePath("todo.txt"));
+    QFile inputFile(QDir::home().filePath("toldyouso.txt"));
     if (!inputFile.open(QIODevice::ReadOnly)) {
         qWarning() << "Failed to open" << inputFile.fileName() << inputFile.errorString();
         return;
@@ -117,11 +124,13 @@ void Window::load()
     for (const QString &text : unchecked) {
         addItem(text, false);
     }
+
+    updateScore();
 }
 
 void Window::save() const
 {
-    QFile outputFile(QDir::home().filePath("todo.txt"));
+    QFile outputFile(QDir::home().filePath("toldyouso.txt"));
     if (!outputFile.open(QIODevice::WriteOnly)) {
         qWarning() << "Failed to open" << outputFile.fileName() << outputFile.errorString();
         return;
@@ -148,6 +157,8 @@ void Window::onItemChanged(QStandardItem *item)
     }
     m_filterModel->sort(0);
 
+    updateScore();
+
     save();
 }
 
@@ -162,5 +173,18 @@ void Window::addItem(const QString &text, const bool checked)
     item->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
     item->setDropEnabled(false);
     m_listModel->insertRow(0, item);
+
+    updateScore();
 }
 
+void Window::updateScore()
+{
+    int score = 0;
+    for (int row=0; row<m_listModel->rowCount(); row++) {
+        if (m_listModel->item(row)->checkState() == Qt::Checked) {
+            score++;
+        }
+    }
+
+    m_score->setText("<h1>Score: <b>" + QString::number(score) + "</b></h1>");
+}

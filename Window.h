@@ -7,6 +7,7 @@ class QListView;
 class QStandardItemModel;
 class QSortFilterProxyModel;
 class QLineEdit;
+class QLabel;
 
 class Window : public QDialog
 {
@@ -23,10 +24,12 @@ private slots:
 private:
     void load();
     void addItem(const QString &text, const bool checked);
+    void updateScore();
 
     QListView *m_listView;
     QStandardItemModel *m_listModel;
     QSortFilterProxyModel *m_filterModel;
     QLineEdit *m_addEdit;
+    QLabel *m_score;
 };
 
