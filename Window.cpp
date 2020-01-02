@@ -179,12 +179,15 @@ void Window::addItem(const QString &text, const bool checked)
 
 void Window::updateScore()
 {
-    int score = 0;
+    double score = 0;
     for (int row=0; row<m_listModel->rowCount(); row++) {
         if (m_listModel->item(row)->checkState() == Qt::Checked) {
-            score++;
+            if (!score) {
+                score = 1;
+            }
+            score *= 1.5;
         }
     }
 
-    m_score->setText("<h1>Score: <b>" + QString::number(score) + "</b></h1>");
+    m_score->setText("<h1>Score: <b>" + QString::number(score, 'f', 1) + "</b></h1>");
 }
