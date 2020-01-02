@@ -1,4 +1,4 @@
-martin-toldyouso
+![icon](/icon.png) martin-toldyouso
 ===========
 
 ![screenshot](/screenshot.png)
